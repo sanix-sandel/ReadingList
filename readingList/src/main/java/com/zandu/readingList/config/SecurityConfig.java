@@ -1,5 +1,7 @@
 package com.zandu.readingList.config;
 
+import com.zandu.readingList.model.Reader;
+import com.zandu.readingList.repository.ReaderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -31,20 +33,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         //for the login page as well as the login failure page (along with an error attribute)
     }
 
-
     @Override
-    protected void configure(
-            AuthenticationManagerBuilder auth) throws Exception{
-        auth
-                .userDetailsService(new UserDetailsService(){
-                    @Override
-                    public UserDetails loadUserByUsername(String username)
-                        throws UsernameNotFoundException {
-                            return readerRepository.findOne(username);
-                        }
-
-                });//used to
-        //look up user details given a username.
+    protected void configure(AuthenticationManagerBuilder auth)throws Exception{
+        auth.userDetailsService(username->readerRepository.findById(username)
+                                                            .orElseThrow(()->new UsernameNotFoundException("user with username "+username+" not found")));
     }
 
 }
